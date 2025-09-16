@@ -1,0 +1,1 @@
+fastapi\nuvicorn\ncelery\nredis\npsycopg2-binary\nsqlalchemy
