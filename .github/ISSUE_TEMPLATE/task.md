@@ -1,18 +1,31 @@
-## 목표
-- PostgreSQL 컨테이너 실행 (Docker)
-- SQLAlchemy ORM 기본 설정 (engine, Base, SessionLocal)
-- TaskResult 모델 정의
-- 테이블 생성 및 확인
+목표
 
-## 작업 내역
-- `docker run` 으로 PostgreSQL 컨테이너 실행
-- `src/db/models.py` 파일 생성 및 SQLAlchemy 연결 코드 작성
-- `TaskResult` 모델 정의 (task_results 테이블)
-- Python 셸에서 `Base.metadata.create_all(bind=engine)` 실행 → DB에 테이블 생성 성공 확인
+1. PostgreSQL 컨테이너 실행 -> Docker사용
+2. SQLAlchemy 기본설정해봄 
+3. TaskResult 모델 만들고 결과조회해봄
+4. 테이블생성된거 확인했음
 
-## 확인 결과
-- PostgreSQL 내부에서 `\dt` 실행 시 `task_results` 테이블 확인됨 ✅
+공부한것
 
-## 다음 단계
-- Celery 작업이 끝날 때마다 결과를 DB에 기록하도록 수정
-- FastAPI API에서 DB에 저장된 TaskResult 조회 기능 추가
+쿼리 파라미터 공부 "POST"
+
+Path parameter: URL 일부로 데이터 받음
+
+Query parameter: ?key=value 형식으로 데이터 받음
+
+POST + JSON Body: 구조화된 데이터 받음 (Pydantic으로 검증 가능)
+
+
+- Celery는 비동기 작업 처리 (백그라운드 작업 큐)를 가능하게
+해주는 툴
+
+- Redis는 그 메세지 브로커역할을 함
+
+오늘작업결과
+
+docker exec -it pg psql -U kjune922 -d cloud_ai 로 
+ Schema |     Name     | Type  |  Owner
+--------+--------------+-------+----------
+ public | task_results | table | kjune922
+ 이렇게 확인했음
+ 
