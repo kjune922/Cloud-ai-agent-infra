@@ -28,4 +28,14 @@ docker exec -it pg psql -U kjune922 -d cloud_ai 로
 --------+--------------+-------+----------
  public | task_results | table | kjune922
  이렇게 확인했음
+
+ ------
+ 2025-09-23
+
+1. FastAPI에 /webbook/ API추가
+ -> 외부에서 JSON데이터를 POST형식으로 받음
+
+2. 받은 데이터를 바로 처리하지 않고 -> Celery Task로 넘김
+3. Celery Task가 PostgreSQL webhook_events 테이블에 저장
  
+ 4. celery log확인하는건 윈도우에서는 celery -A src.celery_app.celery_app worker --loglevel=info --pool=solo

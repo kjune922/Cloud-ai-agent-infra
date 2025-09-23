@@ -65,4 +65,60 @@ def run_add_task(x: int, y:int):
   
 @app.get("/task-result/{task_id}")
 def check_task_result(task_id: str):
-  return get_task_result(task_id)
+  return get_task_result(task_id) 
+
+from src.db.models import SessionLocal,TaskResult # Task Rsult -> 우리가 SQLAlchemy로 정의한 모델 클래스(->DB테이블 task_reuslts에 매핑됨)
+
+@app.get("/db-results/") # FaskAPI 엔드포인트 정의
+def get_db_results(): # 요청이 들어오면 이 함수 실행
+  db = SessionLocal() # DB 세션 객체 생성 -> 여기서 db는 실제로 PostgreSQL에 연결된 통로역할, 이걸로 insert, select, update 같은 sql실행 ㅇㅋ
+  try: # DB연결을 열었으니 이제 할일을 try에, 닫을땐 finally로 안전하게 사용
+    results = db.query(TaskResult).all() # -> select * from task_results 와 같은 말이다 그리고 ".all()"은 전체 행을 Python 객체 리스트로 가져온다는
+    # 즉, results에는 TaskResult 객체들이 들어있다.
+    response_data = []   # 최종 결과를 담을 리스트
+
+    for r in results:    # results에 있는 TaskResult 객체들을 하나씩 꺼냄
+      row = {          # 각 객체에서 필요한 값만 뽑아서 딕셔너리 생성
+        "task_id": r.task_id,
+        "status": r.status,
+        "result": r.result
+      }
+      response_data.append(row)   # 리스트에 추가
+
+    return response_data
+  finally:  # 작업 끝나면 DB닫음
+    db.close()
+    
+from fastapi import Request
+from src.celery_app import save_webhook_event
+
+@app.post("/webhook")
+async def receive_webhook(request:Request):
+  data = await request.json()
+  event_type = data.get("type","unknown")  # JSON에 "type"키가 없으면 unknown처리하겠음
+  task = save_webhook_event.delay(event_type,data)
+  return {
+    "task_id" : task.id,
+    "status" : "받았음"
+  }
+  
+# webhook 저장라우트 선언
+
+from src.db.models import WebhookEvent
+
+@app.get("/webhook-results/")
+def get_webhook_results():
+  db = SessionLocal()
+  try:
+    results = db.query(WebhookEvent).all()
+    response_data = []
+    for r in results:
+      row = {
+        "id":r.id,
+        "event_type":r.event_type,
+        "payload":r.payload
+      }
+      response_data.append(row)
+    return response_data
+  finally:
+    db.close()

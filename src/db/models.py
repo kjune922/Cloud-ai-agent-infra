@@ -25,3 +25,15 @@ class TaskResult(Base):
   task_id = Column(String,unique=True,index=True)
   status = Column(String)
   result = Column(String)
+  
+  ## Webhook정의구간
+  
+from sqlalchemy import Column, Integer, String, JSON, DateTime, func
+  
+class WebhookEvent(Base):
+  __tablename__ = "webhook_events"
+    
+  id = Column(Integer,primary_key=True,index=True)
+  event_type = Column(String,index=True) # 이벤트종류 정의
+  payload = Column(JSON) # 전달된 데이터(JSON전체를 저장하겠음)
+  create_at = Column(DateTime, server_default=func.now()) # 저장 시간정의
